@@ -14,20 +14,22 @@ Choose an original chibi character and explore Splashwood Park with a third-pers
 - Circular perimeter route, cross-map paths, and blue refill landmarks
 - On-foot movement with solid-prop collision, sprint, jump, and map boundary
 
-Click **Choose your character** to preview Bucket, Goggles, Noodle, Squirt, Ducky, and Drip. Each original geometry-based model has distinct hair, clothes, and accessories, with idle, walk, run, and jump poses. Your selection is remembered on this device. All characters share the same movement and collision size; their accessories are cosmetic. The chase camera pulls in near solid cover.
+Click **Choose your character** to preview Bucket, Goggles, Noodle, Squirt, Ducky, and Drip. Original chibi heads and accessories are combined with the rigged body, shirt, shorts, shoes, and movement clips from the supplied Creative_Character_free.blend. Colors are customized for each character, with blended idle, walk, run, and jump animations. Imported root motion is removed so the visible body stays aligned with game physics. Your selection is remembered on this device. All characters share the same movement and collision size; their accessories are cosmetic. The over-the-shoulder camera pulls in near solid cover. Desktop practice captures the mouse for free look; Escape releases it and returns to the map. If capture is unavailable, hovering the mouse over the game still rotates the view without holding a button.
 
-Click **Explore as [name]** or **Explore on foot** after the models load. Desktop: WASD or up/down arrows to move, drag the scene or use left/right arrows to look, Shift to sprint, Space to jump, Escape to return to overview. Touch: left joystick to move, drag the scene to look, Sprint toggle and Jump buttons. Return to entrance resets your position.
+Click **Explore as [name]** or **Explore on foot** after the models load. Desktop: WASD or up/down arrows to move, free mouse-look (click to capture if needed), hold left mouse to spray, R to refill, Shift to sprint, Space to jump, Escape to return to overview. Touch: left joystick to move, drag the scene to look, hold SPRAY to shoot, Refill button, Sprint toggle and Jump buttons. Return to entrance resets your position.
 
-Combat, multiplayer, water refill behavior, and scoring are not implemented in this version. Character water blasters are decorative until combat is added. Refill kiosks are currently landmarks. Bushes and small camp dressing do not block movement.
+Water spray practice is implemented with a refillable tank, splash effects, cover interception, and three practice targets near the entrance. Blue kiosks refill the tank when approached. Practice hits are a local test counter. Multiplayer, player damage, and free-for-all scoring are not implemented yet. Bushes and small camp dressing do not block movement.
 
 ## Development
 
-The prebuilt `dist/` is ready to deploy. To rebuild: `npm ci`, `npm run build`. Run `npm test` for character rig, animation, movement, collision, and camera checks and `npm run check` for source syntax checks. Serve locally with `python3 -m http.server 8000 --directory dist`, then open localhost:8000. The 3D view requires WebGL; opening index.html via file:// will not load models.
+The prebuilt `dist/` is ready to deploy. To rebuild: `npm ci`, `npm run build`. Run `npm test` for character rig, animation, movement, collision, and camera, preview-switching, and water-physics checks and `npm run check` for source syntax checks. Serve locally with `python3 -m http.server 8000 --directory dist`, then open localhost:8000. The 3D view requires WebGL; opening index.html via file:// will not load models.
 
 ## Cloudflare Workers
 
 The linked Worker is `soakognito`. `wrangler.jsonc` serves `./dist` as static assets. Deployment command: `npx wrangler deploy`, root: `/`. The committed bundle means a build command is optional. Changes pushed to main trigger deployment when Cloudflare's Git connection is enabled.
 
 ## Assets
+
+Character body source: user-supplied `Creative_Character_free.blend`, adapted to `dist/assets/characters/crew-body.glb`. Chibi heads, signature accessories, and retro pump blasters are custom geometry.
 
 Kenney Platformer Kit 4.1, Mini Forest 1.0, and Survival Kit 2.0: CC0. Original licenses are in each `dist/assets/` pack folder. Three.js is bundled with its MIT license in `dist/vendor/`. Local static files include models and textures. Optional Google Fonts have system-font fallbacks.

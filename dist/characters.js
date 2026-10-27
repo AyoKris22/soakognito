@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+import {createCharacterBody} from './character-body.js';
 export const CHARACTER_ROSTER=[
  {id:'bucket',name:'Bucket',tag:'The cheerful troublemaker',description:'Bucket helmet. Big grin. Absolutely no plan.',skin:'#f2bb8e',hair:'#704222',shirt:'#28b5b4',shorts:'#514a3f',shoes:'#ff8e28',accent:'#ffd43b'},
  {id:'goggles',name:'Goggles',tag:'The splash champion',description:'Goggles down. Confidence up. Dry socks optional.',skin:'#bd8054',hair:'#4f2c20',shirt:'#fc7963',shorts:'#ff9b7d',shoes:'#f77b68',accent:'#4be0df'},
@@ -35,7 +36,7 @@ export function createCharacter(id='bucket'){
  }
  ball(head,spec.skin,0,-.065,.405,[.058,.047,.05]);
  if(spec.id==='drip'||spec.id==='noodle'){for(const sign of [-1,1])block(head,spec.skin,sign*.175,.13,.398,[.23,.10,.025]);const mouth=new THREE.CatmullRomCurve3([new THREE.Vector3(-.08,-.245,.352),new THREE.Vector3(0,-.235,.366),new THREE.Vector3(.08,-.24,.352)]);piece(head,new THREE.TubeGeometry(mouth,10,.013,5,false),'#804a43',0,0,0);}
- else{const mouth=new THREE.CatmullRomCurve3([new THREE.Vector3(-.13,-.20,.35),new THREE.Vector3(0,-.285,.36),new THREE.Vector3(.14,-.19,.35)]);piece(head,new THREE.TubeGeometry(mouth,12,.032,6,false),'#7b433b',0,0,0);block(head,'#fff6df',0,-.205,.372,[.15,.04,.025]);}
+ else{const smile=new THREE.CatmullRomCurve3([new THREE.Vector3(-.105,-.19,.362),new THREE.Vector3(0,-.218,.38),new THREE.Vector3(.11,-.18,.362)]);piece(head,new THREE.TubeGeometry(smile,18,.012,8,false),'#824e42',0,0,0);}
  // The hair cap sits behind the face; separate clumps form a readable silhouette.
  ball(head,spec.hair,0,.19,-.095,[.49,.34,.36]);
  if(['goggles','ducky'].includes(spec.id)){
@@ -54,20 +55,37 @@ export function createCharacter(id='bucket'){
  }else if(spec.id==='drip'){
   ball(head,'#ad91dc',0,.32,-.04,[.51,.21,.4]);const brim=ball(head,'#9b7ad0',.15,.25,-.38,[.37,.035,.26]);brim.rotation.z=-.1;block(head,'#79629e',0,.30,.367,[.15,.09,.018]);
  }
- // A decorative toy water blaster; firing will be added with combat.
- const gun=new THREE.Group();gun.position.set(0,-.28,.14);gun.rotation.x=-.35;arms[0].add(gun);block(gun,'#ff963d',0,-.05,.05,[.11,.22,.12]);block(gun,'#39bfce',0,.055,.19,[.17,.17,.36]);ball(gun,'#8ee5e8',0,.17,.17,[.12,.12,.17]);const nozzle=tube(gun,'#ff963d',0,.055,.4,.075,.09);nozzle.rotation.x=Math.PI/2;const hole=tube(gun,'#b45b29',0,.055,.452,.039,.012);hole.rotation.x=Math.PI/2;
+ // Chunky retro pump-action toy: oversized tank, long barrel, stock and sliding grip.
+ const gun=new THREE.Group();gun.position.set(.10,-.24,.10);arms[0].add(gun);
+ block(gun,'#b8e23e',0,.06,.23,[.24,.23,.55]);block(gun,'#7459b5',0,-.07,.10,[.13,.26,.14]);
+ block(gun,'#ffa342',0,-.19,.11,[.16,.05,.20]);const guard=torus(gun,'#7459b5',0,-.07,.24,.08,.018);guard.rotation.y=Math.PI/2;
+ block(gun,'#b8e23e',0,.06,-.13,[.21,.18,.20]);block(gun,'#7459b5',0,.045,-.25,[.25,.25,.08]);
+ const tank=ball(gun,'#48bedb',0,.285,.09,[.18,.15,.30]);ball(gun,'#a4edf3',-.06,.34,.16,[.035,.035,.15]);tube(gun,'#7459b5',0,.43,-.02,.055,.045);
+ const barrel=tube(gun,'#f6a13d',0,.08,.61,.07,.37);barrel.rotation.x=Math.PI/2;
+ const pump=block(gun,'#7459b5',0,-.035,.49,[.19,.13,.22]);for(let i=0;i<4;i++)block(gun,'#a18ad4',0,-.035,.41+i*.045,[.2,.14,.018]);
+ const nozzle=tube(gun,'#ff8b35',0,.08,.82,.10,.08);nozzle.rotation.x=Math.PI/2;const hole=tube(gun,'#306a9a',0,.08,.865,.049,.012);hole.rotation.x=Math.PI/2;
+ const muzzle=new THREE.Object3D();muzzle.position.set(0,.08,.88);gun.add(muzzle);let kick=0;
+ const body=createCharacterBody(spec);
+ if(body){rig.add(body.root);torso.children.slice(0,2).forEach(o=>o.visible=false);legs.forEach(o=>o.visible=false);arms.forEach(o=>o.visible=false);rig.add(gun);gun.position.set(-.18,.65,.10);}
  root.scale.setScalar(.9);
  let stride=0,smoothSpeed=0,airBlend=0;
- return {root,spec,rig,head,arms,legs,update(dt,{speed=0,grounded=true,time=0,preview=false}={}){
+ return {root,spec,rig,head,arms,legs,muzzle,body,fire(){kick=.055;},update(dt,{speed=0,grounded=true,time=0,preview=false,aiming=false,aimPitch=0}={}){
  const frame=Math.min(Math.max(dt,0),.05),damp=(current,target,rate=14)=>THREE.MathUtils.damp(current,target,rate,frame);
  smoothSpeed=damp(smoothSpeed,speed,10);airBlend=damp(airBlend,grounded?0:1,16);
  const moving=Math.min(1,smoothSpeed/3);stride+=frame*THREE.MathUtils.lerp(9,13,Math.min(1,smoothSpeed/8))*Math.min(1,smoothSpeed/2);
  const swing=Math.sin(stride)*.7*moving,groundBlend=1-airBlend;
  legs[0].rotation.x=damp(legs[0].rotation.x,swing*groundBlend-.45*airBlend);legs[1].rotation.x=damp(legs[1].rotation.x,-swing*groundBlend+.3*airBlend);
- arms[0].rotation.x=damp(arms[0].rotation.x,-.35-swing*.35);arms[1].rotation.x=damp(arms[1].rotation.x,swing*.65-.15*airBlend);
+ arms[0].rotation.x=damp(arms[0].rotation.x,aiming?-aimPitch:-.08-swing*.16);arms[1].rotation.x=damp(arms[1].rotation.x,aiming?-1:swing*.5-.15*airBlend);kick=damp(kick,0,20);gun.position.z=.10-kick;pump.position.z=.49+kick*1.4;
  rig.position.y=damp(rig.position.y,(Math.abs(Math.sin(stride))*moving*.045+Math.sin(time*2)*.01)*groundBlend+.02*airBlend);
  rig.rotation.z=damp(rig.rotation.z,Math.sin(stride)*moving*.022*groundBlend);head.rotation.z=damp(head.rotation.z,Math.sin(time*1.4)*.02);head.rotation.y=damp(head.rotation.y,preview?Math.sin(time*.7)*.12:0);
- arms[1].rotation.z=damp(arms[1].rotation.z,preview?-.18+Math.sin(time*2)*.08:.12);
+ arms[1].rotation.z=damp(arms[1].rotation.z,aiming?-.9:preview?-.18+Math.sin(time*2)*.08:.12);
  if(preview)root.rotation.y=Math.sin(time*.4)*.2-.2;
- },dispose(){root.traverse(n=>{if(n.isMesh)n.geometry.dispose();});materials.forEach(m=>m.dispose());root.removeFromParent();}};
+ if(body){body.update(frame,smoothSpeed,grounded);root.updateMatrixWorld(true);const neck=body.point('Head',rig),hand=body.point('RightHand',rig);if(neck){head.position.copy(neck);head.position.y+=.34;}if(hand){gun.position.copy(hand);gun.position.y+=.04;gun.position.z+=.08-kick;}gun.rotation.x=aiming?-aimPitch:-.05;}
+ },dispose(){body?.dispose();root.traverse(n=>{if(n.isMesh)n.geometry.dispose();});materials.forEach(m=>m.dispose());root.removeFromParent();}};
+}
+
+// Keep selector models alive while switching; disposing active GPU resources can blank a preview.
+export function createPreviewRoster(scene){
+ const models=new Map();let active=null;
+ return {select(id){let next=models.get(id);if(!next){next=createCharacter(id);models.set(id,next);scene.add(next.root);}for(const model of models.values())model.root.visible=model===next;active=next;return next;},get active(){return active;},dispose(){for(const model of models.values())model.dispose();models.clear();active=null;}};
 }

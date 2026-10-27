@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {traceWater,WaterTank} from '../dist/water-physics.js';
+const from={x:0,y:1.8,z:10},to={x:0,y:1.8,z:-10},target=[{x:0,y:1.8,z:0,r:.58}];
+assert.equal(traceWater(from,to,[],target).type,'target');
+assert.equal(traceWater(from,to,[{x:0,z:4,w:3,d:.2,bottom:0,top:3}],target).type,'cover','thin fence intercepts fast water');
+assert.equal(traceWater({x:4,y:1.8,z:10},{x:4,y:1.8,z:-10},[],target),null,'off-target spray misses');
+assert.equal(traceWater({x:0,y:2,z:3},{x:0,y:0,z:3},[]).type,'ground');
+assert.equal(traceWater({x:0,y:4,z:0},{x:0,y:2,z:0},[],[],[{x:0,z:0,w:5,d:5,h:3}]).type,'cover','raised floor intercepts water');
+const ramp=[{x:0,z:0,w:4,d:10,h:3,ramp:true}];assert.equal(traceWater({x:0,y:4,z:0},{x:0,y:.5,z:0},[],[],ramp).type,'cover');
+const tank=new WaterTank();assert.equal(tank.fire(),true);assert.equal(tank.fire(),false,'fire rate is limited');tank.update(.08);assert.equal(tank.fire(),true);for(let i=0;i<98;i++){tank.update(.08);assert.equal(tank.fire(),true);}tank.update(.08);assert.equal(tank.fire(),false,'empty tank does not shoot');tank.refill();assert.equal(tank.fire(),false);tank.update(1.2);assert.equal(tank.water,100);assert.equal(tank.fire(),true);
+console.log('Passed: water target hits, misses, cover and terrain interception, fire rate, empty tank, and refill.');

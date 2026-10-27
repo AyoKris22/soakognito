@@ -4,9 +4,9 @@
   "description": "Circular forest arena preview for Soakognito",
   "main": "index.js",
   "scripts": {
-    "check": "node --check dist/map.js && node --check dist/characters.js && node --check dist/arena-physics.js",
+    "check": "node --check dist/map.js && node --check dist/characters.js && node --check dist/arena-physics.js && node --check dist/water-physics.js && node --check dist/character-body.js",
     "build": "esbuild dist/map.js --bundle --minify --format=esm --outfile=dist/game.bundle.js",
-    "test": "node tests/arena-physics.test.mjs && node tests/characters.test.mjs"
+    "test": "node tests/arena-physics.test.mjs && node tests/characters.test.mjs && node tests/water-physics.test.mjs"
   },
   "keywords": [],
   "author": "",
