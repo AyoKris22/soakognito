@@ -14,3 +14,11 @@ const wall=[{type:'box',x:0,z:3,w:4,d:.3,bottom:0,top:4}];
 assert.ok(cameraDistance({x:0,y:1.4,z:0},{x:0,y:0,z:1},5.4,wall)<2.8,'chase camera stops before cover');
 assert.ok(cameraDistance({x:0,y:1.4,z:-15},{x:0,y:1,z:0},5.4,[])<1.5,'chase camera stops beneath bridge');
 console.log('Passed: six distinct character rigs, body bounds, idle/walk/run/jump transforms, disposal, camera cover and bridge clipping.');
+
+// Changing from a run to a jump or idle should blend rather than snap joints.
+const blend=createCharacter('bucket');for(let i=0;i<45;i++)blend.update(.016,{speed:8,grounded:true,time:i*.016});
+let before=blend.legs.map(p=>p.rotation.x);blend.update(.016,{speed:0,grounded:false,time:.736});
+blend.legs.forEach((p,i)=>assert.ok(Math.abs(p.rotation.x-before[i])<.25,'jump transition blends'));
+for(let i=0;i<120;i++)blend.update(.016,{speed:0,grounded:true,time:1+i*.016});
+blend.legs.forEach(p=>assert.ok(Math.abs(p.rotation.x)<.01,'legs settle into idle'));blend.dispose();
+console.log('Passed: blended run/jump transitions and idle settling.');

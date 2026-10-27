@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 export const CHARACTER_ROSTER=[
  {id:'bucket',name:'Bucket',tag:'The cheerful troublemaker',description:'Bucket helmet. Big grin. Absolutely no plan.',skin:'#f2bb8e',hair:'#704222',shirt:'#28b5b4',shorts:'#514a3f',shoes:'#ff8e28',accent:'#ffd43b'},
  {id:'goggles',name:'Goggles',tag:'The splash champion',description:'Goggles down. Confidence up. Dry socks optional.',skin:'#bd8054',hair:'#4f2c20',shirt:'#fc7963',shorts:'#ff9b7d',shoes:'#f77b68',accent:'#4be0df'},
@@ -7,16 +8,17 @@ export const CHARACTER_ROSTER=[
  {id:'ducky',name:'Ducky',tag:'The deceptively sweet rival',description:'Cute floatie. Fierce competitive streak.',skin:'#ae744b',hair:'#523422',shirt:'#82d4b6',shorts:'#5fb99c',shoes:'#ffcf38',accent:'#ffdc39'},
  {id:'drip',name:'Drip',tag:'The unbothered menace',description:'Looks half asleep. Somehow always wins.',skin:'#edb587',hair:'#302b38',shirt:'#ab8ce2',shorts:'#49424f',shoes:'#628ed6',accent:'#b49ae9'}
 ];
-const SKIN_SEGMENTS=16;
+// Use more curvature on large visible forms, fewer triangles on tiny details.
+const sphereDetail=size=>size>=.3?[32,24]:size>=.09?[24,16]:[16,12];
 export function createCharacter(id='bucket'){
  const spec=CHARACTER_ROSTER.find(c=>c.id===id)||CHARACTER_ROSTER[0];
  const root=new THREE.Group(),rig=new THREE.Group();root.add(rig);root.name='character-'+spec.id;
- const materials=new Map();const material=(color,gloss=false)=>{const key=color+gloss;if(!materials.has(key))materials.set(key,new THREE.MeshStandardMaterial({color,roughness:gloss ? .3 : .72,metalness:0}));return materials.get(key);};
+ const materials=new Map();const material=(color,gloss=false)=>{const key=color+gloss;if(!materials.has(key))materials.set(key,new THREE.MeshStandardMaterial({color,roughness:gloss ? .3 : .6,metalness:0,flatShading:false}));return materials.get(key);};
  function piece(parent,geometry,color,x,y,z,scale){const o=new THREE.Mesh(geometry,material(color));o.position.set(x,y,z);if(scale)o.scale.set(...scale);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
- const ball=(p,c,x,y,z,s)=>piece(p,new THREE.SphereGeometry(1,SKIN_SEGMENTS,12),c,x,y,z,s);
- const block=(p,c,x,y,z,s)=>piece(p,new THREE.BoxGeometry(...s),c,x,y,z);
- const tube=(p,c,x,y,z,r,h,rTop=r)=>piece(p,new THREE.CylinderGeometry(rTop,r,h,16),c,x,y,z);
- const torus=(p,c,x,y,z,r,t)=>piece(p,new THREE.TorusGeometry(r,t,8,24),c,x,y,z);
+ const ball=(p,c,x,y,z,s)=>{const [width,height]=sphereDetail(Math.max(...s));return piece(p,new THREE.SphereGeometry(1,width,height),c,x,y,z,s);};
+ const block=(p,c,x,y,z,s)=>piece(p,new RoundedBoxGeometry(...s,4,Math.min(...s)*.3),c,x,y,z);
+ const tube=(p,c,x,y,z,r,h,rTop=r)=>piece(p,new THREE.CylinderGeometry(rTop,r,h,32),c,x,y,z);
+ const torus=(p,c,x,y,z,r,t)=>piece(p,new THREE.TorusGeometry(r,t,14,40),c,x,y,z);
  const torso=new THREE.Group();torso.position.y=.86;rig.add(torso);
  ball(torso,spec.shirt,0,0,0,[.31,.36,.225]);block(torso,spec.shorts,0,-.27,0,[.48,.22,.34]);
  if(['bucket','drip'].includes(spec.id)){const hood=torus(torso,spec.shirt,0,.23,-.02,.22,.07);hood.rotation.x=Math.PI/2;for(const x of [-.08,.08]){tube(torso,'#fff2d9',x,.14,.205,.012,.17);ball(torso,'#fff2d9',x,.05,.21,[.024,.025,.024]);}}
@@ -39,8 +41,8 @@ export function createCharacter(id='bucket'){
  if(['goggles','ducky'].includes(spec.id)){
   for(const sign of [-1,1]){if(spec.id==='goggles'){ball(head,spec.hair,sign*.4,.35,-.07,[.22,.23,.22]);for(let i=0;i<5;i++)ball(head,spec.hair,sign*.4+Math.cos(i*1.26)*.14,.35+Math.sin(i*1.26)*.14,-.02,[.105,.1,.1]);}
   else for(let i=0;i<4;i++)ball(head,spec.hair,sign*(.41+.055*i),-.10-.13*i,-.04,[.11-i*.009,.105,.105]);}
- }else if(spec.id==='drip'){for(let i=0;i<6;i++){const bang=block(head,spec.hair,-.32+i*.125,.18,.32,[.135,.3+(i%2)*.05,.11]);bang.rotation.z=(i-2)*.07;}}
- else{for(let i=0;i<8;i++){const a=i/8*Math.PI*2,spike=piece(head,new THREE.ConeGeometry(.12,.33,6),spec.hair,Math.cos(a)*.31,.31+Math.sin(a)*.1,Math.sin(a)*.22);spike.rotation.z=-Math.cos(a)*.7;}}
+ }else if(spec.id==='drip'){for(let i=0;i<6;i++){const bang=ball(head,spec.hair,-.32+i*.125,.18,.32,[.09,.18+(i%2)*.025,.075]);bang.rotation.z=(i-2)*.07;}}
+ else{for(let i=0;i<8;i++){const a=i/8*Math.PI*2,spike=piece(head,new THREE.LatheGeometry([new THREE.Vector2(0,-.15),new THREE.Vector2(.08,-.14),new THREE.Vector2(.12,-.08),new THREE.Vector2(.105,.01),new THREE.Vector2(.065,.10),new THREE.Vector2(.025,.16),new THREE.Vector2(0,.18)],20),spec.hair,Math.cos(a)*.31,.31+Math.sin(a)*.1,Math.sin(a)*.22);spike.rotation.z=-Math.cos(a)*.7;}}
  if(spec.id==='bucket'){
   const helmet=new THREE.Group();helmet.position.set(0,.40,0);helmet.rotation.z=-.13;head.add(helmet);tube(helmet,'#ffd43b',0,0,0,.49,.43,.39);const brim=torus(helmet,'#ffba25',0,-.20,0,.49,.045);brim.rotation.x=Math.PI/2;ball(helmet,'#fff0a7',-.16,.06,.42,[.09,.11,.016]);
  }else if(spec.id==='goggles'){
@@ -55,10 +57,17 @@ export function createCharacter(id='bucket'){
  // A decorative toy water blaster; firing will be added with combat.
  const gun=new THREE.Group();gun.position.set(0,-.28,.14);gun.rotation.x=-.35;arms[0].add(gun);block(gun,'#ff963d',0,-.05,.05,[.11,.22,.12]);block(gun,'#39bfce',0,.055,.19,[.17,.17,.36]);ball(gun,'#8ee5e8',0,.17,.17,[.12,.12,.17]);const nozzle=tube(gun,'#ff963d',0,.055,.4,.075,.09);nozzle.rotation.x=Math.PI/2;const hole=tube(gun,'#b45b29',0,.055,.452,.039,.012);hole.rotation.x=Math.PI/2;
  root.scale.setScalar(.9);
- let stride=0;
- return {root,spec,rig,head,arms,legs,update(dt,{speed=0,grounded=true,time=0,preview=false}={}){stride+=dt*(speed>5?13:9)*Math.min(1,speed/2);const moving=Math.min(1,speed/3),swing=Math.sin(stride)*.7*moving;
- legs[0].rotation.x=grounded?swing:-.45;legs[1].rotation.x=grounded?-swing:.3;arms[0].rotation.x=-.35-swing*.35;arms[1].rotation.x=swing*.65;
- rig.position.y=grounded?Math.abs(Math.sin(stride))*moving*.055+Math.sin(time*2)*.013:.02;rig.rotation.z=grounded?Math.sin(stride)*moving*.025:0;head.rotation.z=Math.sin(time*1.4)*.025;head.rotation.y=preview?Math.sin(time*.7)*.12:0;
- if(preview){arms[1].rotation.z=-.18+Math.sin(time*2)*.08;root.rotation.y=Math.sin(time*.4)*.2-.2;}
+ let stride=0,smoothSpeed=0,airBlend=0;
+ return {root,spec,rig,head,arms,legs,update(dt,{speed=0,grounded=true,time=0,preview=false}={}){
+ const frame=Math.min(Math.max(dt,0),.05),damp=(current,target,rate=14)=>THREE.MathUtils.damp(current,target,rate,frame);
+ smoothSpeed=damp(smoothSpeed,speed,10);airBlend=damp(airBlend,grounded?0:1,16);
+ const moving=Math.min(1,smoothSpeed/3);stride+=frame*THREE.MathUtils.lerp(9,13,Math.min(1,smoothSpeed/8))*Math.min(1,smoothSpeed/2);
+ const swing=Math.sin(stride)*.7*moving,groundBlend=1-airBlend;
+ legs[0].rotation.x=damp(legs[0].rotation.x,swing*groundBlend-.45*airBlend);legs[1].rotation.x=damp(legs[1].rotation.x,-swing*groundBlend+.3*airBlend);
+ arms[0].rotation.x=damp(arms[0].rotation.x,-.35-swing*.35);arms[1].rotation.x=damp(arms[1].rotation.x,swing*.65-.15*airBlend);
+ rig.position.y=damp(rig.position.y,(Math.abs(Math.sin(stride))*moving*.045+Math.sin(time*2)*.01)*groundBlend+.02*airBlend);
+ rig.rotation.z=damp(rig.rotation.z,Math.sin(stride)*moving*.022*groundBlend);head.rotation.z=damp(head.rotation.z,Math.sin(time*1.4)*.02);head.rotation.y=damp(head.rotation.y,preview?Math.sin(time*.7)*.12:0);
+ arms[1].rotation.z=damp(arms[1].rotation.z,preview?-.18+Math.sin(time*2)*.08:.12);
+ if(preview)root.rotation.y=Math.sin(time*.4)*.2-.2;
  },dispose(){root.traverse(n=>{if(n.isMesh)n.geometry.dispose();});materials.forEach(m=>m.dispose());root.removeFromParent();}};
 }
