@@ -15,3 +15,9 @@ p=make(0,25);p.vy=7;p.grounded=false;for(let i=0;i<140;i++)stepPlayer(p,0,0,.016
 p=make(0,38);stepPlayer(p,0,10,.04,[]);assert.ok(Math.hypot(p.x,p.z)<=ARENA_RADIUS-PLAYER_RADIUS);
 assert.equal(canOccupy(0,0,.28,[{type:'circle',x:0,z:0,r:3,top:3,bottom:0}]),false);
 console.log('Passed: sprint collision, both ramps, bridge deck and underpass, ceiling, jump landing, boundary, fountain collision.');
+
+// Landing on low cover must support the player rather than trapping them inside it.
+const crate=[{type:'box',x:0,z:0,w:2,d:2,top:1.1,bottom:.28}];
+p={x:0,z:0,y:2,vy:0,grounded:false};for(let i=0;i<100;i++)stepPlayer(p,0,0,.016,crate);assert.ok(Math.abs(p.y-1.1)<.001&&p.grounded,'crate supports landing');
+for(let i=0;i<100;i++)stepPlayer(p,.05,0,.016,crate);assert.ok(p.x>4&&Math.abs(p.y-.28)<.001,'can walk off cover and land');
+console.log('Passed: low-cover landing and exit.');
