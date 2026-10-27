@@ -30,22 +30,27 @@ export function createCharacter(id='bucket'){
  const head=new THREE.Group();head.position.y=1.43;rig.add(head);
  ball(head,spec.skin,0,0,0,[.48,.46,.405]);for(const sign of [-1,1]){ball(head,spec.skin,sign*.47,-.015,.025,[.105,.13,.085]);ball(head,'#e59978',sign*.505,-.012,.065,[.045,.064,.025]);}
  // Large eyes, distinct eyebrows and a curved grin, facing +Z.
- for(const sign of [-1,1]){const x=sign*.175;ball(head,'#fff9e9',x,.035,.356,[.112,.14,.037]);ball(head,'#342d36',x,.03,.391,[.063,.096,.022]);ball(head,'#ffffff',x-.02,.07,.413,[.021,.027,.009]);const brow=block(head,spec.hair,x,.22,.345,[.18,.035,.035]);brow.rotation.z=spec.id==='drip'?sign*.12:spec.id==='noodle'?-sign*.25:sign*.12;
+ for(const sign of [-1,1]){const x=sign*.175,sleepy=spec.id==='drip'||spec.id==='noodle';ball(head,'#fff9e9',x,0,.356,[.112,sleepy?.095:.12,.037]);ball(head,'#342d36',x,-.005,.391,[.063,sleepy?.062:.085,.022]);ball(head,'#ffffff',x-.02,.035,.413,[.021,.022,.009]);
+  if(spec.id!=='drip'){const curve=new THREE.CatmullRomCurve3([new THREE.Vector3(-.075,-.005,0),new THREE.Vector3(0,.01,.003),new THREE.Vector3(.075,-.005,0)]);const brow=piece(head,new THREE.TubeGeometry(curve,12,.012,6,false),spec.hair,x,.17,.352);brow.name='FaceBrow';brow.rotation.z=spec.id==='noodle'?-sign*.2:sign*.08;}
   ball(head,'#eaa18a',sign*.28,-.125,.34,[.072,.033,.015]);
   if(spec.id==='squirt')for(let j=0;j<3;j++)ball(head,'#bd754d',sign*(.22+j*.035),-.07-(j%2)*.035,.36,[.011,.011,.006]);
  }
  ball(head,spec.skin,0,-.065,.405,[.058,.047,.05]);
- if(spec.id==='drip'||spec.id==='noodle'){for(const sign of [-1,1])block(head,spec.skin,sign*.175,.13,.398,[.23,.10,.025]);const mouth=new THREE.CatmullRomCurve3([new THREE.Vector3(-.08,-.245,.352),new THREE.Vector3(0,-.235,.366),new THREE.Vector3(.08,-.24,.352)]);piece(head,new THREE.TubeGeometry(mouth,10,.013,5,false),'#804a43',0,0,0);}
+ if(spec.id==='drip'||spec.id==='noodle'){const mouth=new THREE.CatmullRomCurve3([new THREE.Vector3(-.08,-.245,.352),new THREE.Vector3(0,-.235,.366),new THREE.Vector3(.08,-.24,.352)]);piece(head,new THREE.TubeGeometry(mouth,10,.013,5,false),'#804a43',0,0,0);}
  else{const smile=new THREE.CatmullRomCurve3([new THREE.Vector3(-.105,-.19,.362),new THREE.Vector3(0,-.218,.38),new THREE.Vector3(.11,-.18,.362)]);piece(head,new THREE.TubeGeometry(smile,18,.012,8,false),'#824e42',0,0,0);}
  // The hair cap sits behind the face; separate clumps form a readable silhouette.
  ball(head,spec.hair,0,.19,-.095,[.49,.34,.36]);
  if(['goggles','ducky'].includes(spec.id)){
   for(const sign of [-1,1]){if(spec.id==='goggles'){ball(head,spec.hair,sign*.4,.35,-.07,[.22,.23,.22]);for(let i=0;i<5;i++)ball(head,spec.hair,sign*.4+Math.cos(i*1.26)*.14,.35+Math.sin(i*1.26)*.14,-.02,[.105,.1,.1]);}
   else for(let i=0;i<4;i++)ball(head,spec.hair,sign*(.41+.055*i),-.10-.13*i,-.04,[.11-i*.009,.105,.105]);}
- }else if(spec.id==='drip'){for(let i=0;i<6;i++){const bang=ball(head,spec.hair,-.32+i*.125,.18,.32,[.09,.18+(i%2)*.025,.075]);bang.rotation.z=(i-2)*.07;}}
+ }else if(spec.id==='drip'){for(let i=0;i<6;i++){const bang=ball(head,spec.hair,-.32+i*.125,.31,.30,[.09,.14+(i%2)*.012,.075]);bang.rotation.z=(i-2)*.07;}}
  else{for(let i=0;i<8;i++){const a=i/8*Math.PI*2,spike=piece(head,new THREE.LatheGeometry([new THREE.Vector2(0,-.15),new THREE.Vector2(.08,-.14),new THREE.Vector2(.12,-.08),new THREE.Vector2(.105,.01),new THREE.Vector2(.065,.10),new THREE.Vector2(.025,.16),new THREE.Vector2(0,.18)],20),spec.hair,Math.cos(a)*.31,.31+Math.sin(a)*.1,Math.sin(a)*.22);spike.rotation.z=-Math.cos(a)*.7;}}
  if(spec.id==='bucket'){
-  const helmet=new THREE.Group();helmet.position.set(0,.40,0);helmet.rotation.z=-.13;head.add(helmet);tube(helmet,'#ffd43b',0,0,0,.49,.43,.39);const brim=torus(helmet,'#ffba25',0,-.20,0,.49,.045);brim.rotation.x=Math.PI/2;ball(helmet,'#fff0a7',-.16,.06,.42,[.09,.11,.016]);
+  const helmet=new THREE.Group();helmet.name='BucketHelmet';helmet.position.set(0,.43,0);head.add(helmet);
+  // A full hollow shell and continuous circular lip clear the hair on every side.
+  const profile=[[.55,-.23],[.59,-.23],[.60,-.19],[.51,.22],[.48,.27],[0,.27],[0,.23],[.46,.23],[.55,-.19],[.55,-.23]].map(([r,y])=>new THREE.Vector2(r,y));
+  const shell=piece(helmet,new THREE.LatheGeometry(profile,64),'#ffd43b',0,0,0);shell.name='BucketShell';
+  const brim=torus(helmet,'#ffba25',0,-.205,0,.575,.035);brim.rotation.x=Math.PI/2;ball(helmet,'#fff0a7',-.13,.02,.557,[.075,.09,.016]);
  }else if(spec.id==='goggles'){
   for(const sign of [-1,1]){const rim=torus(head,'#31c7c7',sign*.19,.31,.32,.16,.035);rim.scale.y=.7;ball(head,'#95e9ed',sign*.19,.31,.31,[.14,.10,.06]);ball(head,'#e3ffff',sign*.19-.035,.34,.37,[.03,.045,.008]);}block(head,'#31c7c7',0,.31,.35,[.12,.06,.06]);
  }else if(spec.id==='noodle'){
@@ -69,7 +74,7 @@ export function createCharacter(id='bucket'){
  if(body){rig.add(body.root);torso.children.slice(0,2).forEach(o=>o.visible=false);legs.forEach(o=>o.visible=false);arms.forEach(o=>o.visible=false);rig.add(gun);gun.position.set(-.18,.65,.10);}
  root.scale.setScalar(.9);
  let stride=0,smoothSpeed=0,airBlend=0;
- return {root,spec,rig,head,arms,legs,muzzle,body,fire(){kick=.055;},update(dt,{speed=0,grounded=true,time=0,preview=false,aiming=false,aimPitch=0}={}){
+ return {root,spec,rig,head,arms,legs,muzzle,body,aimAt(point){gun.lookAt(point);},fire(){kick=.055;},update(dt,{speed=0,grounded=true,time=0,preview=false,aiming=false,aimPitch=0}={}){
  const frame=Math.min(Math.max(dt,0),.05),damp=(current,target,rate=14)=>THREE.MathUtils.damp(current,target,rate,frame);
  smoothSpeed=damp(smoothSpeed,speed,10);airBlend=damp(airBlend,grounded?0:1,16);
  const moving=Math.min(1,smoothSpeed/3);stride+=frame*THREE.MathUtils.lerp(9,13,Math.min(1,smoothSpeed/8))*Math.min(1,smoothSpeed/2);

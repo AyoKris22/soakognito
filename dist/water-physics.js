@@ -7,3 +7,5 @@ export function traceWater(a,b,solids,targets=[],surfaces=[]){let best=Infinity,
  if(a.y>=.28&&b.y<.28)consider((a.y-.28)/(a.y-b.y),'ground');return hit;
 }
 export class WaterTank{constructor(){this.water=100;this.cooldown=0;this.reload=0;}update(dt){this.cooldown=Math.max(0,this.cooldown-dt);if(this.reload>0){this.reload=Math.max(0,this.reload-dt);if(!this.reload)this.water=100;}}refill(){if(!this.reload&&this.water<100)this.reload=1.1;}fire(){if(this.reload||this.cooldown>0||this.water<1)return false;this.water--;this.cooldown=.075;return true;}}
+
+export function straightWaterVelocity(origin,target,speed=30){const x=target.x-origin.x,y=target.y-origin.y,z=target.z-origin.z,length=Math.hypot(x,y,z);return length>1e-8?{x:x/length*speed,y:y/length*speed,z:z/length*speed}:{x:0,y:0,z:0};}

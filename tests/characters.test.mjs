@@ -36,3 +36,8 @@ console.log('Passed: repeated preview switching and blaster muzzle transforms.')
 // Imported locomotion must stay in place; physics owns world movement.
 const inPlace=createCharacter('goggles');for(let i=0;i<240;i++){inPlace.update(.016,{speed:8,grounded:true,time:i*.016});inPlace.root.updateMatrixWorld(true);const headPoint=inPlace.body.point('Head',inPlace.rig);assert.ok(Math.abs(headPoint.z)<.55,'root motion is removed');}inPlace.dispose();
 console.log('Passed: imported locomotion stays aligned with the physics capsule.');
+// Fringe-covered faces have no eyebrows on top of the hair; Bucket clears the entire crown.
+const fringe=createCharacter('drip');let brows=0;fringe.root.traverse(o=>{if(o.name==='FaceBrow')brows++;});assert.equal(brows,0);fringe.dispose();
+const helmetCharacter=createCharacter('bucket'),helmet=helmetCharacter.root.getObjectByName('BucketHelmet'),shell=helmetCharacter.root.getObjectByName('BucketShell');assert.ok(helmet&&shell);assert.equal(helmet.rotation.z,0);
+const opening=shell.geometry.attributes.position;let count=0;for(let i=0;i<opening.count;i++){if(opening.getY(i)<-.19){assert.ok(Math.hypot(opening.getX(i),opening.getZ(i))>.53,'helmet opening clears hair all around');count++;}}assert.ok(count>100);assert.ok([...shell.geometry.attributes.normal.array].every(Number.isFinite));helmetCharacter.dispose();
+console.log('Passed: fringe eyebrow clearance and full-circumference bucket opening.');

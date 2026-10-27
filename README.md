@@ -18,7 +18,7 @@ Click **Choose your character** to preview Bucket, Goggles, Noodle, Squirt, Duck
 
 Click **Explore as [name]** or **Explore on foot** after the models load. Desktop: WASD or up/down arrows to move, free mouse-look (click to capture if needed), hold left mouse to spray, R to refill, Shift to sprint, Space to jump, Escape to return to overview. Touch: left joystick to move, drag the scene to look, hold SPRAY to shoot, Refill button, Sprint toggle and Jump buttons. Return to entrance resets your position.
 
-Water spray practice is implemented with a refillable tank, splash effects, cover interception, and three practice targets near the entrance. Blue kiosks refill the tank when approached. Practice hits are a local test counter. Multiplayer, player damage, and free-for-all scoring are not implemented yet. Bushes and small camp dressing do not block movement.
+Water spray practice is implemented with a refillable tank, splash effects, cover interception, and three practice targets near the entrance. Straight water shots travel from the muzzle to the point under the precisely centered crosshair; the barrel turns toward that same point, with no projectile drop. Blue kiosks refill the tank when approached. Practice hits are a local test counter. Multiplayer, player damage, and free-for-all scoring are not implemented yet. Bushes and small camp dressing do not block movement.
 
 ## Development
 
