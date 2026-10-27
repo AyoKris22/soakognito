@@ -1,23 +1,31 @@
 # Soakognito
 
-Splashwood Park is the first environment for a goofy secret-target water-fight game.
+A goofy water-fight arena in a circular woodland playground. The intended game mode is free-for-all with extra points for soaking an assigned target.
 
-This initial version is an interactive **map preview**, not a multiplayer game. Drag to orbit, zoom, and select landmark views. Water guns, character selection, player movement, collision, crowd AI, and multiplayer are not implemented yet. The blaster and mini-character packs have not been supplied.
+## Current version: arena exploration
 
-## Map
+Explore Splashwood Park on foot or inspect it from the map overview. This update combines Kenney's Survival Kit with Mini Forest and Platformer Kit.
 
-90-metre circular arena, outer loop, four inward routes, central splash fountain, four lookout structures, camp corners, forest cover, and refill-station placeholders. Terrain/platform pieces come from Kenney Platformer Kit; trees, structures, bridges, and props come from Mini Forest. Raised structures and bridges are visual layouts pending traversal/collision work.
+- Splash plaza with fountain and cover islands
+- Camp Splash: tents, a wooden shelter, workbench, and camping props
+- Crate Yard: crates, barrels, fences, and multiple approaches
+- Autumn Grove and Rocky Run: trees, rocks, and logs that break up long sightlines
+- Two raised lookouts joined by a walkable bridge, with two approach ramps and an underpass
+- Circular perimeter route, cross-map paths, and blue refill landmarks
+- On-foot movement with solid-prop collision, sprint, jump, and map boundary
 
-## Run
+Click **Explore on foot** after the models load. Desktop: WASD or up/down arrows to move, drag the scene or use left/right arrows to look, Shift to sprint, Space to jump, Escape to return to overview. Touch: left joystick to move, drag the scene to look, Sprint toggle and Jump buttons. Return to entrance resets your position.
 
-The prebuilt dist/ is ready to serve. To rebuild after editing dist/map.js, run `npm ci` then `npm run build`.
+Combat, multiplayer, water refill behavior, scoring, and character selection are not implemented in this version. The requested blaster and mini-character packs have not been supplied. Refill kiosks are currently landmarks. Bushes and small camp dressing do not block movement.
 
-Serve the `dist/` directory with a static HTTP server, such as `python3 -m http.server 8000 --directory dist`. Open localhost:8000. Opening index.html as file:// will not work because models use fetch.
+## Development
 
-## Cloudflare Pages with GitHub
+The prebuilt `dist/` is ready to deploy. To rebuild: `npm ci`, `npm run build`. Run `npm test` for movement/collision checks and `npm run check` for source syntax checks. Serve locally with `python3 -m http.server 8000 --directory dist`, then open localhost:8000. The 3D view requires WebGL; opening index.html via file:// will not load models.
 
-Push this folder's contents to a new GitHub repository. In Cloudflare Workers & Pages, create a Pages project and connect the repository. Framework: None. No build command. Output directory: `dist`. This is a static site; no credentials, database, or paid services are required for this preview. Git integration deploys future commits. Account authorization must be completed by the account owner where requested.
+## Cloudflare Workers
+
+The linked Worker is `soakognito`. `wrangler.jsonc` serves `./dist` as static assets. Deployment command: `npx wrangler deploy`, root: `/`. The committed bundle means a build command is optional. Changes pushed to main trigger deployment when Cloudflare's Git connection is enabled.
 
 ## Assets
 
-Kenney Platformer Kit 4.1 and Mini Forest 1.0, CC0; original license files are preserved under dist/assets/. Three.js is bundled locally, with its MIT license in dist/vendor/. Fonts are optional Google Fonts; system fallbacks work without them. All 3D assets and JavaScript are served locally.
+Kenney Platformer Kit 4.1, Mini Forest 1.0, and Survival Kit 2.0: CC0. Original licenses are in each `dist/assets/` pack folder. Three.js is bundled with its MIT license in `dist/vendor/`. Local static files include models and textures. Optional Google Fonts have system-font fallbacks.

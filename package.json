@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "check": "node --check dist/map.js",
-    "build": "esbuild dist/map.js --bundle --minify --format=esm --outfile=dist/game.bundle.js"
+    "build": "esbuild dist/map.js --bundle --minify --format=esm --outfile=dist/game.bundle.js",
+    "test": "node tests/arena-physics.test.mjs"
   },
   "keywords": [],
   "author": "",
