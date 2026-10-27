@@ -2,9 +2,9 @@
 
 A goofy water-fight arena in a circular woodland playground. The intended game mode is free-for-all with extra points for soaking an assigned target.
 
-## Current version: arena exploration
+## Current version: character crew and arena exploration
 
-Explore Splashwood Park on foot or inspect it from the map overview. This update combines Kenney's Survival Kit with Mini Forest and Platformer Kit.
+Choose an original chibi character and explore Splashwood Park with a third-person camera, or inspect it from the map overview. This update combines Kenney's Survival Kit with Mini Forest and Platformer Kit.
 
 - Splash plaza with fountain and cover islands
 - Camp Splash: tents, a wooden shelter, workbench, and camping props
@@ -14,13 +14,15 @@ Explore Splashwood Park on foot or inspect it from the map overview. This update
 - Circular perimeter route, cross-map paths, and blue refill landmarks
 - On-foot movement with solid-prop collision, sprint, jump, and map boundary
 
-Click **Explore on foot** after the models load. Desktop: WASD or up/down arrows to move, drag the scene or use left/right arrows to look, Shift to sprint, Space to jump, Escape to return to overview. Touch: left joystick to move, drag the scene to look, Sprint toggle and Jump buttons. Return to entrance resets your position.
+Click **Choose your character** to preview Bucket, Goggles, Noodle, Squirt, Ducky, and Drip. Each original geometry-based model has distinct hair, clothes, and accessories, with idle, walk, run, and jump poses. Your selection is remembered on this device. All characters share the same movement and collision size; their accessories are cosmetic. The chase camera pulls in near solid cover.
 
-Combat, multiplayer, water refill behavior, scoring, and character selection are not implemented in this version. The requested blaster and mini-character packs have not been supplied. Refill kiosks are currently landmarks. Bushes and small camp dressing do not block movement.
+Click **Explore as [name]** or **Explore on foot** after the models load. Desktop: WASD or up/down arrows to move, drag the scene or use left/right arrows to look, Shift to sprint, Space to jump, Escape to return to overview. Touch: left joystick to move, drag the scene to look, Sprint toggle and Jump buttons. Return to entrance resets your position.
+
+Combat, multiplayer, water refill behavior, and scoring are not implemented in this version. Character water blasters are decorative until combat is added. Refill kiosks are currently landmarks. Bushes and small camp dressing do not block movement.
 
 ## Development
 
-The prebuilt `dist/` is ready to deploy. To rebuild: `npm ci`, `npm run build`. Run `npm test` for movement/collision checks and `npm run check` for source syntax checks. Serve locally with `python3 -m http.server 8000 --directory dist`, then open localhost:8000. The 3D view requires WebGL; opening index.html via file:// will not load models.
+The prebuilt `dist/` is ready to deploy. To rebuild: `npm ci`, `npm run build`. Run `npm test` for character rig, animation, movement, collision, and camera checks and `npm run check` for source syntax checks. Serve locally with `python3 -m http.server 8000 --directory dist`, then open localhost:8000. The 3D view requires WebGL; opening index.html via file:// will not load models.
 
 ## Cloudflare Workers
 
